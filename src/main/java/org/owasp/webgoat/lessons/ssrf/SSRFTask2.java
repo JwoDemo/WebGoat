@@ -29,7 +29,14 @@ public class SSRFTask2 implements AssignmentEndpoint {
   public AttackResult completed(@RequestParam String url) {
     return furBall(url);
   }
+  @PostMapping("/SSRF/task3")
+  @ResponseBody
+  public AttackResult completed(@RequestParam String url) {
+    return furBall2(url);
+  }
 
+
+    
   protected AttackResult furBall(String url) {
     if (url.matches("http://ifconfig\\.pro")) {
       String html;
@@ -50,7 +57,28 @@ public class SSRFTask2 implements AssignmentEndpoint {
     var html = "<img class=\"image\" alt=\"image post\" src=\"images/cat.jpg\">";
     return getFailedResult(html);
   }
+  protected AttackResult furBall2(String url) {
+    if (url.matches("http://ifconfig\\.pro")) {
+      String html;
+      try (InputStream in = new URL(url).openStream()) {
+        html =
+            new String(in.readAllBytes(), StandardCharsets.UTF_8)
+                .replaceAll("\n", "<br>"); // Otherwise the \n gets escaped in the response
+      } catch (MalformedURLException e) {
+        return getFailedResult(e.getMessage());
+      } catch (IOException e) {
+        // in case the external site is down, the test and lesson should still be ok
+        html =
+            "<html><body>Although the http://ifconfig.pro site is down, you still managed to solve"
+                + " this exercise the right way!</body></html>";
+      }
+      return success(this).feedback("ssrf.success").output(html).build();
+    }
+    var html = "<img class=\"image\" alt=\"image post\" src=\"images/cat.jpg\">";
+    return getFailedResult(html);
+  }
 
+    
   private AttackResult getFailedResult(String errorMsg) {
     return failed(this).feedback("ssrf.failure").output(errorMsg).build();
   }
