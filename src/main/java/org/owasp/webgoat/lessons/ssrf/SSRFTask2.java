@@ -58,7 +58,11 @@ public class SSRFTask2 implements AssignmentEndpoint {
     return getFailedResult(html);
   }
   protected AttackResult furBall2(String url) {
-    if (url.matches("http://ifconfig\\.pro")) {
+    // Define a whitelist of allowed URLs
+    final List<String> allowedUrls = List.of("http://ifconfig.pro");
+
+    // Validate the user-provided URL against the whitelist
+    if (allowedUrls.contains(url)) {
       String html;
       try (InputStream in = new URL(url).openStream()) {
         html =
